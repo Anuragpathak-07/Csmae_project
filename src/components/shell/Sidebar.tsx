@@ -19,7 +19,7 @@ const NAV = [
   { to: "/overview", label: "Overview", icon: LayoutDashboard },
   { to: "/map", label: "Global Map", icon: Globe2 },
   { to: "/plan-vs-actual", label: "Plan vs Actual", icon: BarChart3 },
-  { to: "/attainment-matrix", label: "Attainment Matrix", icon: Grid3x3 },
+  { to: "/attainment-matrix", label: "Country Performance", icon: Grid3x3 },
   { to: "/gap-recovery", label: "Gap Recovery", icon: ShieldAlert },
   { to: "/ai-insights", label: "AI Insights", icon: Sparkles },
   { to: "/leaderboard", label: "Leaderboard", icon: Trophy },
