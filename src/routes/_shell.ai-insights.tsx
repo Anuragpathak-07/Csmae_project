@@ -72,7 +72,7 @@ function AIInsights() {
         </div>
 
         {answer && (
-          <div className="mb-8 rounded-xl border border-border-subtle bg-black/30 p-4 text-sm text-text-secondary">
+          <div className="mb-8 rounded-xl border border-border-subtle bg-scrim p-4 text-sm text-text-secondary">
             <span className="mb-1 block text-[11px] uppercase tracking-wider text-accent-secondary">Answer</span>
             {answer}
           </div>

@@ -46,18 +46,15 @@ function StarLayer({ count, size, opacity, duration }: { count: number; size: nu
 export function AppBackground({ subtle = false }: { subtle?: boolean }) {
   return (
     <div className="fixed inset-0 -z-10 overflow-hidden" aria-hidden>
-      <div
-        className="absolute inset-0"
-        style={{
-          background:
-            "radial-gradient(ellipse at 20% 0%, #0A0F1F 0%, #030712 45%, #020617 100%)",
-        }}
-      />
+      <div className="absolute inset-0" style={{ background: "var(--app-bg)" }} />
       {!subtle && (
         <>
-          <StarLayer count={90} size={1} opacity={0.35} duration={200} />
-          <StarLayer count={40} size={2} opacity={0.25} duration={140} />
-          <div className="absolute inset-0 bp-grid opacity-[0.05]" />
+          {/* Starfield + grid only render in dark theme */}
+          <div className="hidden dark:block">
+            <StarLayer count={90} size={1} opacity={0.35} duration={200} />
+            <StarLayer count={40} size={2} opacity={0.25} duration={140} />
+            <div className="absolute inset-0 bp-grid opacity-[0.05]" />
+          </div>
           <div
             className="orbital-glow"
             style={{

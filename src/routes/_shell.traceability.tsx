@@ -36,7 +36,7 @@ function Traceability() {
               value={q}
               onChange={(e) => setQ(e.target.value)}
               placeholder="Search metrics..."
-              className="w-full rounded-lg border border-border-subtle bg-black/30 py-2 pl-9 pr-3 text-xs text-text-primary placeholder:text-text-muted outline-none focus:border-accent-secondary/60"
+              className="w-full rounded-lg border border-border-subtle bg-scrim py-2 pl-9 pr-3 text-xs text-text-primary placeholder:text-text-muted outline-none focus:border-accent-secondary/60"
             />
           </div>
           <div className="max-h-[560px] space-y-1 overflow-auto pr-1">
@@ -50,7 +50,7 @@ function Traceability() {
                   className={`w-full rounded-lg border px-3 py-2 text-left text-xs transition ${
                     active
                       ? "border-accent-secondary/50 bg-accent-secondary/10 text-text-primary"
-                      : "border-transparent text-text-secondary hover:bg-white/[0.03] hover:text-text-primary"
+                      : "border-transparent text-text-secondary hover:bg-film hover:text-text-primary"
                   }`}
                 >
                   <div className="truncate font-medium">{m.metric}</div>

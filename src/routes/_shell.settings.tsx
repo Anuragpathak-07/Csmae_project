@@ -35,7 +35,7 @@ function SettingsPage() {
               <div className="text-sm text-text-primary">Dark Blue Noir</div>
               <div className="text-xs text-text-muted">Locked as default — more themes coming soon</div>
             </div>
-            <div className="cursor-not-allowed rounded-full border border-border-subtle bg-black/30 px-3 py-1 text-xs text-text-muted" title="More themes coming soon">
+            <div className="cursor-not-allowed rounded-full border border-border-subtle bg-scrim px-3 py-1 text-xs text-text-muted" title="More themes coming soon">
               Locked
             </div>
           </div>
@@ -71,7 +71,7 @@ function Toggle({ label, defaultOn }: { label: string; defaultOn?: boolean }) {
   return (
     <div className="flex items-center justify-between">
       <div className="text-sm text-text-primary">{label}</div>
-      <div className={`relative h-5 w-9 rounded-full transition ${defaultOn ? "bg-accent-primary" : "bg-white/10"}`}>
+      <div className={`relative h-5 w-9 rounded-full transition ${defaultOn ? "bg-accent-primary" : "bg-hairline-strong"}`}>
         <span className={`absolute top-0.5 h-4 w-4 rounded-full bg-white transition ${defaultOn ? "left-4" : "left-0.5"}`} />
       </div>
     </div>

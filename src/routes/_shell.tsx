@@ -8,7 +8,7 @@ export const Route = createFileRoute("/_shell")({
   component: ShellLayout,
 });
 
-const HIDE_FILTER_ROUTES = new Set(["/settings", "/overview", "/attainment-matrix"]);
+const HIDE_FILTER_ROUTES = new Set(["/settings", "/overview", "/attainment-matrix", "/map"]);
 
 function ShellLayout() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });

@@ -103,7 +103,7 @@ export function RegionStatusRow({
   showPct?: boolean;
 }) {
   return (
-    <div className="flex items-center gap-3 py-3 border-b border-white/[0.05] last:border-0">
+    <div className="flex items-center gap-3 py-3 border-b border-hairline last:border-0">
       <RegionIcon region={region} />
       <span className="flex-1 text-sm font-medium text-text-primary truncate">{region}</span>
       {showPct && pct !== undefined && (

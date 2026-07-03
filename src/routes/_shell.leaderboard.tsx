@@ -64,7 +64,7 @@ function Leaderboard() {
                 </td>
                 <td className="px-4 py-4 text-right text-text-primary">{formatPct(r.attainment)}</td>
                 <td className="px-4 py-4">
-                  <div className="relative h-1.5 w-full overflow-hidden rounded-full bg-white/[0.06]">
+                  <div className="relative h-1.5 w-full overflow-hidden rounded-full bg-film-strong">
                     <div
                       className="absolute inset-y-0 left-0 rounded-full"
                       style={{

@@ -82,10 +82,7 @@ function GapRecovery() {
     <div className="flex flex-col gap-4">
 
       {/* ── Header strip ─────────────────────────────────────────── */}
-      <div
-        className="glass-panel flex flex-wrap items-center justify-between gap-6 px-7 py-5"
-        style={{ borderColor: "rgba(255,255,255,0.07)" }}
-      >
+      <div className="glass-panel flex flex-wrap items-center justify-between gap-6 px-7 py-5">
         <div>
           <div className="mb-1 text-[10px] font-bold uppercase tracking-[0.2em] text-accent-secondary">
             Gap Recovery
@@ -97,7 +94,7 @@ function GapRecovery() {
 
         <div className="flex items-center gap-8">
           <Stat label="Total Gap" value={formatNumber(totalGap, { sign: true })} color="var(--status-behind)" />
-          <div className="h-7 w-px bg-white/10" />
+          <div className="h-7 w-px bg-hairline-strong" />
           <Stat label="Critical" value={String(criticalCount)} color={RISK_STYLE.Critical.color} />
           <Stat label="High"     value={String(highCount)}     color={RISK_STYLE.High.color} />
           <Stat label="Medium"   value={String(allGapItems.filter((x) => x.risk === "Medium").length)} color={RISK_STYLE.Medium.color} />
@@ -113,7 +110,7 @@ function GapRecovery() {
             className={`rounded-full border px-3.5 py-1.5 text-[11px] font-medium transition ${
               activeFilter === f
                 ? "border-accent-secondary/50 bg-accent-secondary/12 text-text-primary"
-                : "border-border-subtle text-text-muted hover:border-white/15 hover:text-text-secondary"
+                : "border-border-subtle text-text-muted hover:border-hairline-strong hover:text-text-secondary"
             }`}
           >
             {f}
@@ -125,7 +122,7 @@ function GapRecovery() {
       </div>
 
       {/* ── Recovery list ─────────────────────────────────────────── */}
-      <div className="glass-panel overflow-hidden" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
+      <div className="glass-panel overflow-hidden">
         {items.length === 0 && (
           <div className="py-16 text-center text-sm text-text-muted">
             No items match the selected filter.
@@ -140,8 +137,8 @@ function GapRecovery() {
           return (
             <div
               key={item.r.id}
-              className={`flex flex-col gap-3 px-6 py-5 transition-colors hover:bg-white/[0.025] sm:flex-row sm:items-center sm:gap-5 ${
-                !isLast ? "border-b border-white/[0.05]" : ""
+              className={`flex flex-col gap-3 px-6 py-5 transition-colors hover:bg-film sm:flex-row sm:items-center sm:gap-5 ${
+                !isLast ? "border-b border-hairline" : ""
               }`}
             >
               {/* Rank + dot */}
@@ -203,7 +200,7 @@ function GapRecovery() {
                     <span className="uppercase tracking-wider">Score</span>
                     <span className="font-semibold text-text-secondary">{item.score}</span>
                   </div>
-                  <div className="h-1 w-20 overflow-hidden rounded-full bg-white/[0.08]">
+                  <div className="h-1 w-20 overflow-hidden rounded-full bg-film-strong">
                     <div
                       className="h-full rounded-full"
                       style={{

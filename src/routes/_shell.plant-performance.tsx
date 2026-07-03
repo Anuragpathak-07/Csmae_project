@@ -117,7 +117,7 @@ function Treemap() {
           ))}
         </div>
 
-        <div className="relative w-full overflow-hidden rounded-xl border border-border-subtle bg-black/30">
+        <div className="relative w-full overflow-hidden rounded-xl border border-border-subtle bg-scrim">
           <svg viewBox="0 0 1000 560" className="h-[560px] w-full">
             {rects.map(({ n, x, y, w, h }) => (
               <g

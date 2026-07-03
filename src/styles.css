@@ -75,13 +75,95 @@
   --color-status-onplan: var(--status-onplan);
   --color-status-noplan: var(--status-noplan);
   --color-status-info: var(--status-info);
+  --color-hairline: var(--hairline);
+  --color-hairline-strong: var(--hairline-strong);
+  --color-film: var(--film);
+  --color-film-strong: var(--film-strong);
+  --color-scrim: var(--scrim);
+  --color-panel: var(--panel-bg);
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Manrope", ui-sans-serif, system-ui, sans-serif;
 }
 
 :root {
   --radius: 0.875rem;
-  /* Dark Blue Noir tokens */
+
+  /* ── Light theme (default) ─────────────────────────────────── */
+  --bg-void: #EEF2F8;
+  --bg-deep: #E4EAF3;
+  --bg-base: #F4F7FB;
+  --bg-elevated: #FFFFFF;
+  --accent-primary: #2563EB;
+  --accent-secondary: #2F6FED;
+  --accent-glow: rgba(37, 99, 235, 0.22);
+  --surface-glass: rgba(255, 255, 255, 0.78);
+  --panel-bg: rgba(255, 255, 255, 0.82);
+  --border-subtle: rgba(15, 23, 42, 0.10);
+  --text-primary: #0F172A;
+  --text-secondary: #475569;
+  --text-muted: #64748B;
+  --status-behind: #DC2626;
+  --status-watchlist: #D97706;
+  --status-onplan: #059669;
+  --status-noplan: #64748B;
+  --status-info: #2563EB;
+
+  /* Neutral surface tokens (auto-invert per theme) */
+  --hairline: rgba(15, 23, 42, 0.08);
+  --hairline-strong: rgba(15, 23, 42, 0.16);
+  --film: rgba(15, 23, 42, 0.035);
+  --film-strong: rgba(15, 23, 42, 0.07);
+  --scrim: rgba(255, 255, 255, 0.7);
+  --glass-shadow: 0 8px 32px rgba(15, 23, 42, 0.10);
+  --dropdown-bg: rgba(255, 255, 255, 0.98);
+  --tooltip-bg: rgba(255, 255, 255, 0.98);
+  --chart-grid: rgba(15, 23, 42, 0.10);
+  --app-bg: radial-gradient(ellipse at 20% 0%, #F8FAFF 0%, #EAF0F8 45%, #E2E9F4 100%);
+  --map-bg: #E8EEF7;
+  --map-land: #CAD8EC;
+  --map-land-hover: #B6C9E6;
+  --map-stroke: rgba(37, 99, 235, 0.20);
+  --map-panel-scrim: rgba(255, 255, 255, 0.85);
+
+  /* Shadcn semantic mapping */
+  --background: var(--bg-void);
+  --foreground: var(--text-primary);
+  --card: var(--bg-elevated);
+  --card-foreground: var(--text-primary);
+  --popover: var(--bg-elevated);
+  --popover-foreground: var(--text-primary);
+  --primary: var(--accent-primary);
+  --primary-foreground: #FFFFFF;
+  --secondary: rgba(15, 23, 42, 0.05);
+  --secondary-foreground: var(--text-primary);
+  --muted: rgba(15, 23, 42, 0.04);
+  --muted-foreground: var(--text-secondary);
+  --accent: rgba(37, 99, 235, 0.10);
+  --accent-foreground: var(--text-primary);
+  --destructive: var(--status-behind);
+  --destructive-foreground: #FFFFFF;
+  --border: var(--border-subtle);
+  --input: rgba(15, 23, 42, 0.12);
+  --ring: var(--accent-secondary);
+  --chart-1: #2563EB;
+  --chart-2: #059669;
+  --chart-3: #D97706;
+  --chart-4: #DC2626;
+  --chart-5: #64748B;
+  --sidebar: rgba(255, 255, 255, 0.85);
+  --sidebar-foreground: var(--text-secondary);
+  --sidebar-primary: var(--accent-primary);
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: rgba(37, 99, 235, 0.10);
+  --sidebar-accent-foreground: var(--text-primary);
+  --sidebar-border: var(--border-subtle);
+  --sidebar-ring: var(--accent-secondary);
+
+  color-scheme: light;
+}
+
+.dark {
+  /* ── Dark Blue Noir theme ──────────────────────────────────── */
   --bg-void: #020617;
   --bg-deep: #030712;
   --bg-base: #0A0F1F;
@@ -90,6 +172,7 @@
   --accent-secondary: #3B82F6;
   --accent-glow: rgba(59, 130, 246, 0.45);
   --surface-glass: rgba(15, 23, 42, 0.55);
+  --panel-bg: rgba(15, 23, 42, 0.72);
   --border-subtle: rgba(255, 255, 255, 0.08);
   --text-primary: #FFFFFF;
   --text-secondary: #94A3B8;
@@ -100,45 +183,39 @@
   --status-noplan: #64748B;
   --status-info: #3B82F6;
 
-  /* Shadcn semantic mapping (dark noir) */
+  --hairline: rgba(255, 255, 255, 0.08);
+  --hairline-strong: rgba(255, 255, 255, 0.18);
+  --film: rgba(255, 255, 255, 0.04);
+  --film-strong: rgba(255, 255, 255, 0.08);
+  --scrim: rgba(2, 6, 23, 0.4);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+  --dropdown-bg: rgba(10, 15, 31, 0.97);
+  --tooltip-bg: rgba(15, 23, 42, 0.95);
+  --chart-grid: rgba(59, 130, 246, 0.08);
+  --app-bg: radial-gradient(ellipse at 20% 0%, #0A0F1F 0%, #030712 45%, #020617 100%);
+  --map-bg: #030B18;
+  --map-land: #0C1E38;
+  --map-land-hover: #0F2847;
+  --map-stroke: rgba(59, 130, 246, 0.12);
+  --map-panel-scrim: rgba(3, 11, 24, 0.85);
+
   --background: var(--bg-void);
   --foreground: var(--text-primary);
   --card: var(--surface-glass);
-  --card-foreground: var(--text-primary);
   --popover: #0F172A;
-  --popover-foreground: var(--text-primary);
-  --primary: var(--accent-primary);
-  --primary-foreground: #FFFFFF;
   --secondary: rgba(30, 41, 59, 0.6);
-  --secondary-foreground: var(--text-primary);
   --muted: rgba(30, 41, 59, 0.5);
-  --muted-foreground: var(--text-secondary);
   --accent: rgba(37, 99, 235, 0.15);
-  --accent-foreground: var(--text-primary);
-  --destructive: var(--status-behind);
-  --destructive-foreground: #FFFFFF;
-  --border: var(--border-subtle);
   --input: rgba(255, 255, 255, 0.1);
-  --ring: var(--accent-secondary);
   --chart-1: #3B82F6;
   --chart-2: #10B981;
   --chart-3: #F59E0B;
   --chart-4: #EF4444;
   --chart-5: #64748B;
   --sidebar: rgba(10, 15, 31, 0.7);
-  --sidebar-foreground: var(--text-secondary);
-  --sidebar-primary: var(--accent-primary);
-  --sidebar-primary-foreground: #FFFFFF;
   --sidebar-accent: rgba(37, 99, 235, 0.12);
-  --sidebar-accent-foreground: var(--text-primary);
-  --sidebar-border: var(--border-subtle);
-  --sidebar-ring: var(--accent-secondary);
-}
 
-.dark {
-  /* Dark theme is default; keep tokens identical */
-  --background: var(--bg-void);
-  --foreground: var(--text-primary);
+  color-scheme: dark;
 }
 
 @layer base {
@@ -151,10 +228,7 @@
     color: var(--color-text-primary);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
-  }
-
-  html {
-    color-scheme: dark;
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
 }
 
@@ -165,7 +239,7 @@
   backdrop-filter: blur(24px);
   border: 1px solid var(--border-subtle);
   border-radius: 1rem;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+  box-shadow: var(--glass-shadow);
 }
 
 @utility glass-card {
@@ -197,7 +271,7 @@
 }
 
 @utility gradient-text-blue {
-  background: linear-gradient(135deg, #FFFFFF 0%, #93C5FD 100%);
+  background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent-secondary) 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;

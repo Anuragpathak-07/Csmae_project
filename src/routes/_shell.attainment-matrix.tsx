@@ -1,10 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { ALL_RECORDS, MONTH_LABELS, REGIONS, formatNumber, formatPct, type Status } from "@/lib/mockData";
 import { useMemo, useState } from "react";
-import { ChevronDown, TrendingDown, TrendingUp, Minus } from "lucide-react";
+import { ChevronDown, TrendingDown, TrendingUp, Minus, ArrowUpRight, ArrowDownRight, AlertTriangle, CheckCircle2 } from "lucide-react";
 import {
-  BarChart,
-  Bar,
+  Area,
+  CartesianGrid,
+  ComposedChart,
   XAxis,
   YAxis,
   Tooltip,
@@ -47,12 +48,12 @@ function monthLabel(m: string) {
 }
 
 const TOOLTIP_STYLE = {
-  background: "rgba(10,15,31,0.97)",
-  border: "1px solid rgba(255,255,255,0.08)",
+  background: "var(--tooltip-bg)",
+  border: "1px solid var(--hairline)",
   borderRadius: 10,
-  color: "#FFFFFF",
+  color: "var(--text-primary)",
   fontSize: 11,
-  boxShadow: "0 8px 32px rgba(0,0,0,0.5)",
+  boxShadow: "var(--glass-shadow)",
 };
 
 /* ─── component ─────────────────────────────────────────────────── */
@@ -69,13 +70,29 @@ function CountryPerformance() {
     [selectedRegion],
   );
 
+  const PREV_MONTH = MONTH_LABELS[MONTH_LABELS.length - 2];
+
   const summary = useMemo(() => {
     const plan   = currentRecs.reduce((s, r) => s + r.plan, 0);
     const actual = currentRecs.reduce((s, r) => s + r.actual, 0);
     const gap    = actual - plan;
     const att    = plan ? actual / plan : 0;
-    return { plan, actual, gap, att, status: attToStatus(att, plan) };
-  }, [currentRecs]);
+
+    const prevRecs = ALL_RECORDS.filter((r) => r.region === selectedRegion && r.reportMonth === PREV_MONTH);
+    const prevPlan   = prevRecs.reduce((s, r) => s + r.plan, 0);
+    const prevActual = prevRecs.reduce((s, r) => s + r.actual, 0);
+    const prevAtt    = prevPlan ? prevActual / prevPlan : 0;
+
+    return {
+      plan,
+      actual,
+      gap,
+      att,
+      status: attToStatus(att, plan),
+      deltaPts: (att - prevAtt) * 100,
+      gapPct: plan ? gap / plan : 0,
+    };
+  }, [currentRecs, selectedRegion, PREV_MONTH]);
 
   /* 12-month trend for selected region */
   const trendData = useMemo(
@@ -136,13 +153,19 @@ function CountryPerformance() {
   const gapColor = summary.gap >= 0 ? "var(--status-onplan)" : "var(--status-behind)";
   const statusColor = STATUS_COLOR[summary.status];
 
+  /* worst offenders + trend stats for the insight banner */
+  const worstPlant = plants[0];
+  const worstLine = productLines[0];
+  const trendAvg = trendData.reduce((s, t) => s + t.att, 0) / (trendData.length || 1);
+  const trendCurrent = trendData[trendData.length - 1]?.att ?? 0;
+  const improving = summary.deltaPts >= 0;
+
   return (
     <div className="flex flex-col gap-4" onClick={() => dropdownOpen && setDropdownOpen(false)}>
 
       {/* ── Header strip ─────────────────────────────────────────── */}
       <div
         className="glass-panel flex flex-wrap items-center justify-between gap-6 px-7 py-5"
-        style={{ borderColor: "rgba(255,255,255,0.07)" }}
       >
         <div>
           <div className="mb-1 text-[10px] font-bold uppercase tracking-[0.2em] text-accent-secondary">
@@ -157,7 +180,7 @@ function CountryPerformance() {
         <div className="relative" onClick={(e) => e.stopPropagation()}>
           <button
             onClick={() => setDropdownOpen((v) => !v)}
-            className="flex min-w-[200px] items-center justify-between gap-3 rounded-xl border border-white/10 bg-white/[0.05] px-4 py-3 text-sm font-medium text-text-primary transition hover:border-accent-secondary/40 hover:bg-white/[0.08]"
+            className="flex min-w-[200px] items-center justify-between gap-3 rounded-xl border border-hairline bg-film px-4 py-3 text-sm font-medium text-text-primary transition hover:border-accent-secondary/40 hover:bg-film-strong"
           >
             <span className="flex items-center gap-2">
               <span
@@ -173,8 +196,8 @@ function CountryPerformance() {
 
           {dropdownOpen && (
             <div
-              className="absolute right-0 top-full z-50 mt-1.5 min-w-[200px] overflow-hidden rounded-xl border border-white/10 py-1"
-              style={{ background: "rgba(10,15,31,0.97)", backdropFilter: "blur(24px)", boxShadow: "0 16px 48px rgba(0,0,0,0.6)" }}
+              className="absolute right-0 top-full z-50 mt-1.5 min-w-[200px] overflow-hidden rounded-xl border border-hairline py-1"
+              style={{ background: "var(--dropdown-bg)", backdropFilter: "blur(24px)", boxShadow: "var(--glass-shadow)" }}
             >
               {REGIONS.map((reg) => {
                 const recs  = ALL_RECORDS.filter((r) => r.region === reg.name && r.reportMonth === CURRENT_MONTH);
@@ -189,7 +212,7 @@ function CountryPerformance() {
                     key={reg.name}
                     onClick={() => { setSelectedRegion(reg.name); setDropdownOpen(false); }}
                     className={`flex w-full items-center justify-between px-4 py-2.5 text-sm transition ${
-                      active ? "bg-accent-secondary/10 text-text-primary" : "text-text-secondary hover:bg-white/[0.04] hover:text-text-primary"
+                      active ? "bg-accent-secondary/10 text-text-primary" : "text-text-secondary hover:bg-film hover:text-text-primary"
                     }`}
                   >
                     <span className="flex items-center gap-2.5">
@@ -214,22 +237,73 @@ function CountryPerformance() {
           value={formatNumber(summary.gap, { sign: true })}
           valueColor={gapColor}
           icon={<GapIcon className="h-3.5 w-3.5" style={{ color: gapColor }} />}
+          sub={`${formatPct(summary.gapPct)} of plan`}
         />
         <KpiTile
           label="Attainment"
           value={formatPct(summary.att)}
           valueColor={statusColor}
-          sub={summary.status}
-          subColor={statusColor}
+          delta={summary.deltaPts}
+          deltaSuffix=" pts MoM"
         />
       </div>
 
+      {/* ── Insight banner ───────────────────────────────────────── */}
+      <InsightBanner
+        positive={summary.status === "On Plan" || summary.status === "Above Plan"}
+        text={
+          <>
+            {selectedRegion} is at{" "}
+            <strong className="font-semibold text-text-primary">{formatPct(summary.att)}</strong> attainment —{" "}
+            <span className="font-semibold" style={{ color: improving ? "var(--status-onplan)" : "var(--status-behind)" }}>
+              {improving ? "up" : "down"} {Math.abs(summary.deltaPts).toFixed(1)} pts
+            </span>{" "}
+            vs last month.
+            {worstPlant && worstPlant.gap < 0 && (
+              <>
+                {" "}Biggest drags:{" "}
+                <strong className="font-semibold text-text-primary">{worstPlant.name}</strong> (
+                <span style={{ color: "var(--status-behind)" }}>{formatNumber(worstPlant.gap, { sign: true })}</span>)
+                {worstLine && worstLine.gap < 0 && (
+                  <> and <strong className="font-semibold text-text-primary">{worstLine.name}</strong></>
+                )}
+                .
+              </>
+            )}
+          </>
+        }
+      />
+
       {/* ── 12-month trend ───────────────────────────────────────── */}
-      <div className="glass-panel px-6 py-5" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
-        <SectionLabel>12-Month Attainment Trend</SectionLabel>
-        <div className="mt-4 h-[200px]">
+        <div className="glass-panel px-6 py-5">
+        <div className="flex items-end justify-between gap-4">
+          <div>
+            <SectionLabel>12-Month Attainment Trend</SectionLabel>
+            <p className="mt-1 text-xs text-text-muted">Rolling monthly performance vs. target</p>
+          </div>
+          <div className="flex items-center gap-6 text-right">
+            <div>
+              <div className="text-[10px] uppercase tracking-wider text-text-muted">12-mo avg</div>
+              <div className="text-sm font-semibold tabular-nums text-text-secondary">{trendAvg.toFixed(1)}%</div>
+            </div>
+            <div>
+              <div className="text-[10px] uppercase tracking-wider text-text-muted">Current</div>
+              <div className="text-lg font-semibold tabular-nums leading-none" style={{ color: statusColor, fontFamily: "var(--font-display)" }}>
+                {trendCurrent.toFixed(1)}%
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="mt-4 h-[210px]">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={trendData} barSize={22} margin={{ left: 0, right: 0, top: 4, bottom: 0 }}>
+            <ComposedChart data={trendData} margin={{ left: -8, right: 8, top: 8, bottom: 0 }}>
+              <defs>
+                <linearGradient id="attTrendFill" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor={statusColor} stopOpacity={0.32} />
+                  <stop offset="100%" stopColor={statusColor} stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid stroke="#3B82F6" strokeOpacity={0.06} vertical={false} />
               <XAxis
                 dataKey="month"
                 tick={{ fill: "#64748B", fontSize: 10 }}
@@ -237,32 +311,44 @@ function CountryPerformance() {
                 tickLine={false}
               />
               <YAxis
-                domain={[0, 130]}
+                domain={[(min: number) => Math.max(0, Math.floor((min - 10) / 10) * 10), (max: number) => Math.ceil((max + 10) / 10) * 10]}
                 tick={{ fill: "#64748B", fontSize: 10 }}
                 axisLine={false}
                 tickLine={false}
                 tickFormatter={(v) => `${v}%`}
-                width={36}
+                width={40}
               />
               <Tooltip
-                contentStyle={TOOLTIP_STYLE}
-                cursor={{ fill: "rgba(59,130,246,0.05)" }}
-                formatter={(v: number) => [`${v}%`, "Attainment"]}
+                cursor={{ stroke: "var(--hairline-strong)", strokeWidth: 1 }}
+                content={({ active, payload, label }) => {
+                  if (!active || !payload?.length) return null;
+                  const v = payload[0]?.value as number;
+                  const tone = v >= 95 ? "#10B981" : v >= 80 ? "#F59E0B" : "#EF4444";
+                  return (
+                    <div style={TOOLTIP_STYLE} className="px-3 py-2">
+                      <div className="text-text-muted">{label}</div>
+                      <div className="mt-0.5 font-semibold tabular-nums" style={{ color: tone }}>{v}% attainment</div>
+                    </div>
+                  );
+                }}
               />
-              <ReferenceLine y={95} stroke="#10B981" strokeDasharray="3 3" strokeOpacity={0.5} />
-              <ReferenceLine y={80} stroke="#F59E0B" strokeDasharray="3 3" strokeOpacity={0.4} />
-              <Bar
+              <ReferenceLine y={95} stroke="#10B981" strokeDasharray="4 4" strokeOpacity={0.5} label={{ value: "95% target", position: "insideTopRight", fill: "#10B981", fontSize: 10, opacity: 0.7 }} />
+              <ReferenceLine y={80} stroke="#F59E0B" strokeDasharray="4 4" strokeOpacity={0.35} />
+              <Area
+                type="monotone"
                 dataKey="att"
-                radius={[4, 4, 0, 0]}
-                fill="#3B82F6"
-                opacity={0.75}
+                stroke={statusColor}
+                strokeWidth={2}
+                fill="url(#attTrendFill)"
+                dot={false}
+                activeDot={{ r: 4, fill: statusColor, stroke: "#fff", strokeWidth: 1.5 }}
               />
-            </BarChart>
+            </ComposedChart>
           </ResponsiveContainer>
         </div>
         <div className="mt-3 flex items-center gap-5 text-[10px] text-text-muted">
-          <span className="flex items-center gap-1.5"><span className="inline-block h-px w-5 bg-status-onplan opacity-60" />On Plan ≥95%</span>
-          <span className="flex items-center gap-1.5"><span className="inline-block h-px w-5 bg-status-watchlist opacity-60" />Watchlist ≥80%</span>
+          <span className="flex items-center gap-1.5"><span className="inline-block h-px w-5 border-t border-dashed border-status-onplan/70" />On Plan ≥95%</span>
+          <span className="flex items-center gap-1.5"><span className="inline-block h-px w-5 border-t border-dashed border-status-watchlist/70" />Watchlist ≥80%</span>
         </div>
       </div>
 
@@ -270,13 +356,13 @@ function CountryPerformance() {
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
 
         {/* Plants */}
-        <div className="glass-panel overflow-hidden" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
-          <div className="border-b border-white/[0.05] px-6 py-4">
+        <div className="glass-panel overflow-hidden">
+          <div className="border-b border-hairline px-6 py-4">
             <SectionLabel>Plant Breakdown</SectionLabel>
           </div>
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-white/[0.04]">
+              <tr className="border-b border-hairline">
                 {["Plant", "Plan", "Actual", "Gap", "%"].map((h) => (
                   <th
                     key={h}
@@ -291,7 +377,8 @@ function CountryPerformance() {
               {plants.map((p, i) => (
                 <tr
                   key={p.name}
-                  className={`transition-colors hover:bg-white/[0.025] ${i !== plants.length - 1 ? "border-b border-white/[0.04]" : ""}`}
+                  className={`transition-colors hover:bg-film ${i !== plants.length - 1 ? "border-b border-hairline" : ""}`}
+                  style={i === 0 && p.gap < 0 ? { background: "color-mix(in oklab, var(--status-behind) 7%, transparent)" } : undefined}
                 >
                   <td className="px-5 py-3">
                     <div className="flex items-center gap-2">
@@ -300,6 +387,7 @@ function CountryPerformance() {
                         style={{ background: STATUS_COLOR[p.status] }}
                       />
                       <span className="font-medium text-text-primary">{p.name}</span>
+                      {i === 0 && p.gap < 0 && <TopDragTag />}
                     </div>
                   </td>
                   <td className="px-5 py-3 text-right text-text-muted">{formatNumber(p.plan)}</td>
@@ -320,13 +408,13 @@ function CountryPerformance() {
         </div>
 
         {/* Product lines */}
-        <div className="glass-panel overflow-hidden" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
-          <div className="border-b border-white/[0.05] px-6 py-4">
+        <div className="glass-panel overflow-hidden">
+          <div className="border-b border-hairline px-6 py-4">
             <SectionLabel>Product Line Breakdown</SectionLabel>
           </div>
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-white/[0.04]">
+              <tr className="border-b border-hairline">
                 {["Product Line", "Plan", "Actual", "Gap", "%"].map((h) => (
                   <th
                     key={h}
@@ -341,7 +429,8 @@ function CountryPerformance() {
               {productLines.map((p, i) => (
                 <tr
                   key={p.name}
-                  className={`transition-colors hover:bg-white/[0.025] ${i !== productLines.length - 1 ? "border-b border-white/[0.04]" : ""}`}
+                  className={`transition-colors hover:bg-film ${i !== productLines.length - 1 ? "border-b border-hairline" : ""}`}
+                  style={i === 0 && p.gap < 0 ? { background: "color-mix(in oklab, var(--status-behind) 7%, transparent)" } : undefined}
                 >
                   <td className="px-5 py-3">
                     <div className="flex items-center gap-2">
@@ -350,6 +439,7 @@ function CountryPerformance() {
                         style={{ background: STATUS_COLOR[p.status] }}
                       />
                       <span className="font-medium text-text-primary">{p.name}</span>
+                      {i === 0 && p.gap < 0 && <TopDragTag />}
                     </div>
                   </td>
                   <td className="px-5 py-3 text-right text-text-muted">{formatNumber(p.plan)}</td>
@@ -390,6 +480,8 @@ function KpiTile({
   icon,
   sub,
   subColor,
+  delta,
+  deltaSuffix = "",
 }: {
   label: string;
   value: string;
@@ -397,11 +489,15 @@ function KpiTile({
   icon?: React.ReactNode;
   sub?: string;
   subColor?: string;
+  delta?: number;
+  deltaSuffix?: string;
 }) {
+  const up = (delta ?? 0) >= 0;
+  const DeltaIcon = up ? ArrowUpRight : ArrowDownRight;
+  const deltaColor = up ? "var(--status-onplan)" : "var(--status-behind)";
   return (
     <div
       className="glass-panel flex flex-col gap-1.5 px-5 py-4"
-      style={{ borderColor: "rgba(255,255,255,0.06)" }}
     >
       <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-text-muted">{label}</span>
       <div className="flex items-center gap-1.5">
@@ -413,12 +509,48 @@ function KpiTile({
           {value}
         </span>
       </div>
+      {delta !== undefined && (
+        <span className="flex items-center gap-1 text-[11px] font-medium tabular-nums" style={{ color: deltaColor }}>
+          <DeltaIcon className="h-3 w-3" />
+          {Math.abs(delta).toFixed(1)}{deltaSuffix}
+        </span>
+      )}
       {sub && (
         <span className="text-[10px] font-medium" style={{ color: subColor ?? "var(--text-muted)" }}>
           {sub}
         </span>
       )}
     </div>
+  );
+}
+
+function InsightBanner({ text, positive }: { text: React.ReactNode; positive: boolean }) {
+  const color = positive ? "var(--status-onplan)" : "var(--status-behind)";
+  const Icon = positive ? CheckCircle2 : AlertTriangle;
+  return (
+    <div
+      className="glass-panel flex items-center gap-3 px-5 py-3.5"
+      style={{ borderColor: `color-mix(in oklab, ${color} 22%, var(--hairline))` }}
+    >
+      <span
+        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full"
+        style={{ background: `color-mix(in oklab, ${color} 14%, transparent)`, color }}
+      >
+        <Icon className="h-4 w-4" />
+      </span>
+      <p className="text-sm text-text-secondary">{text}</p>
+    </div>
+  );
+}
+
+function TopDragTag() {
+  return (
+    <span
+      className="rounded-full px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider"
+      style={{ background: "color-mix(in oklab, var(--status-behind) 16%, transparent)", color: "var(--status-behind)" }}
+    >
+      Top drag
+    </span>
   );
 }
 
@@ -430,7 +562,7 @@ function AttainmentBar({ att, status }: { att: number; status: Status }) {
       <span className="text-[11px] font-semibold tabular-nums" style={{ color }}>
         {pct}%
       </span>
-      <div className="h-1 w-14 overflow-hidden rounded-full bg-white/[0.08]">
+      <div className="h-1 w-14 overflow-hidden rounded-full bg-film-strong">
         <div
           className="h-full rounded-full"
           style={{ width: `${Math.min(100, pct)}%`, background: color, boxShadow: `0 0 4px ${color}60` }}

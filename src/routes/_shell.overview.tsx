@@ -37,7 +37,7 @@ const STATUS_COLOR: Record<Status, string> = {
 
 function SectionHeader({ title }: { title: string }) {
   return (
-    <div className="mb-1 border-b border-white/10 pb-3">
+    <div className="mb-1 border-b border-hairline pb-3">
       <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-text-muted">
         {title}
       </span>
@@ -88,14 +88,7 @@ function OverviewPage() {
   return (
     <div className="flex flex-col gap-5">
       {/* ── Executive Header ─────────────────────────────────────────── */}
-      <div
-        className="glass-panel flex flex-wrap items-center justify-between gap-6 px-7 py-5"
-        style={{
-          background:
-            "linear-gradient(135deg, rgba(15,23,42,0.85) 0%, rgba(10,15,31,0.75) 100%)",
-          borderColor: "rgba(255,255,255,0.07)",
-        }}
-      >
+      <div className="glass-panel flex flex-wrap items-center justify-between gap-6 px-7 py-5">
         <div>
           <div className="mb-1 text-[10px] font-bold uppercase tracking-[0.2em] text-accent-secondary">
             Global Operations · Executive Summary
@@ -107,11 +100,11 @@ function OverviewPage() {
 
         <div className="flex items-center gap-10">
           <MetaBadge value={formatPct(k.attainment)} label="Overall Attainment" color={overallColor} />
-          <div className="h-8 w-px bg-white/10" />
+          <div className="h-8 w-px bg-hairline-strong" />
           <MetaBadge value={behind} label="Behind Plan" color="var(--status-behind)" />
           <MetaBadge value={watchlist} label="Watchlist" color="var(--status-watchlist)" />
           <MetaBadge value={onPlan} label="On Plan" color="var(--status-onplan)" />
-          <div className="h-8 w-px bg-white/10" />
+          <div className="h-8 w-px bg-hairline-strong" />
           <div className="flex items-center gap-2 text-[11px] text-text-muted">
             <span
               className="inline-block h-1.5 w-1.5 animate-pulse rounded-full"
@@ -141,7 +134,7 @@ function OverviewPage() {
           </ul>
 
           {/* Footnote */}
-          <div className="mt-auto pt-5 border-t border-white/[0.06]">
+          <div className="mt-auto pt-5 border-t border-hairline">
             <p className="text-xs leading-relaxed text-text-muted">
               <span className="font-semibold text-text-secondary">Procurement-driven regions:</span>{" "}
               Three days remaining in the quarter — all teams fully mobilised for a strong close.
@@ -184,7 +177,7 @@ function OverviewPage() {
           </div>
 
           {/* Summary bar */}
-          <div className="mt-5 border-t border-white/[0.06] pt-4">
+          <div className="mt-5 border-t border-hairline pt-4">
             <div className="mb-1.5 flex justify-between text-[10px] text-text-muted">
               <span>Delivery Attainment</span>
               <span className="font-semibold text-text-secondary">
@@ -193,7 +186,7 @@ function OverviewPage() {
                 )}
               </span>
             </div>
-            <div className="h-1.5 w-full rounded-full bg-white/[0.07] overflow-hidden">
+            <div className="h-1.5 w-full rounded-full bg-film-strong overflow-hidden">
               <div
                 className="h-full rounded-full transition-all"
                 style={{
@@ -225,7 +218,7 @@ function OverviewPage() {
           </div>
 
           {/* Status tally */}
-          <div className="mt-5 border-t border-white/[0.06] pt-4 grid grid-cols-2 gap-3">
+          <div className="mt-5 border-t border-hairline pt-4 grid grid-cols-2 gap-3">
             {(["Behind Plan", "Watchlist", "On Plan", "Above Plan"] as Status[]).map((st) => {
               const count = summaries.filter((s) => s.productionStatus === st).length;
               if (count === 0) return null;
@@ -246,10 +239,7 @@ function OverviewPage() {
       </div>
 
       {/* ── Bottom insight strip ──────────────────────────────────────── */}
-      <div
-        className="glass-panel flex flex-wrap items-center justify-between gap-4 px-6 py-3"
-        style={{ borderColor: "rgba(255,255,255,0.05)" }}
-      >
+      <div className="glass-panel flex flex-wrap items-center justify-between gap-4 px-6 py-3">
         <span className="text-xs text-text-muted">
           Reporting period:{" "}
           <span className="font-medium text-text-secondary">May 2026</span> · 6 Regions · 14 Plants · 152 KPIs

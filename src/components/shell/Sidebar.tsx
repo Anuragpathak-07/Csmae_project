@@ -53,7 +53,7 @@ export function AppSidebar() {
                 className={`relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition ${
                   active
                     ? "bg-accent-secondary/10 text-text-primary"
-                    : "text-text-secondary hover:bg-white/5 hover:text-text-primary"
+                    : "text-text-secondary hover:bg-film-strong hover:text-text-primary"
                 }`}
               >
                 {active && (
@@ -78,7 +78,7 @@ export function AppSidebar() {
             className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition ${
               pathname === "/settings"
                 ? "bg-accent-secondary/10 text-text-primary"
-                : "text-text-secondary hover:bg-white/5 hover:text-text-primary"
+                : "text-text-secondary hover:bg-film-strong hover:text-text-primary"
             }`}
           >
             <Settings className="h-4 w-4" />

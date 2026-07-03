@@ -1,13 +1,11 @@
 import { Link } from "@tanstack/react-router";
 import { Bell, Download } from "lucide-react";
+import { ThemeToggle } from "./ThemeToggle";
 
 export function AppHeader() {
   return (
     <header className="sticky top-4 z-40 mx-4 mt-4">
-      <div
-        className="glass-panel flex items-center gap-4 px-5 py-2.5"
-        style={{ borderColor: "rgba(255,255,255,0.06)" }}
-      >
+      <div className="glass-panel flex items-center gap-4 px-5 py-2.5">
         {/* Brand */}
         <Link to="/overview" className="flex items-center gap-2.5 shrink-0">
           <div
@@ -26,12 +24,13 @@ export function AppHeader() {
         <div className="flex-1" />
 
         {/* Month chip */}
-        <span className="hidden rounded-full border border-white/[0.08] bg-white/[0.04] px-3 py-1 text-[11px] font-medium text-text-secondary md:block">
+        <span className="hidden rounded-full border border-hairline bg-film px-3 py-1 text-[11px] font-medium text-text-secondary md:block">
           May 2026
         </span>
 
         {/* Right actions */}
         <div className="flex items-center gap-1">
+          <ThemeToggle />
           <IconBtn ariaLabel="Notifications">
             <Bell className="h-4 w-4" />
             <span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-status-behind" />
@@ -53,7 +52,7 @@ function IconBtn({ children, ariaLabel }: { children: React.ReactNode; ariaLabel
     <button
       type="button"
       aria-label={ariaLabel}
-      className="relative flex h-8 w-8 items-center justify-center rounded-full text-text-secondary transition hover:bg-white/5 hover:text-text-primary"
+      className="relative flex h-8 w-8 items-center justify-center rounded-full text-text-secondary transition hover:bg-film-strong hover:text-text-primary"
     >
       {children}
     </button>

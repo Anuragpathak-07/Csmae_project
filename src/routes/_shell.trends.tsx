@@ -23,7 +23,7 @@ function TrendPage() {
         title="Execution Trend Analytics"
         subtitle="Historical performance with model-driven forecast."
         actions={
-          <div className="inline-flex rounded-full border border-border-subtle bg-black/30 p-1 text-xs">
+          <div className="inline-flex rounded-full border border-border-subtle bg-scrim p-1 text-xs">
             {(["Q", "H", "Y"] as const).map((r) => (
               <button
                 key={r}
@@ -50,7 +50,7 @@ function TrendPage() {
               <CartesianGrid stroke="#3B82F6" strokeOpacity={0.08} vertical={false} />
               <XAxis dataKey="month" tick={{ fill: "#94A3B8", fontSize: 11 }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fill: "#94A3B8", fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={(v) => formatNumber(v)} />
-              <Tooltip contentStyle={{ background: "rgba(15,23,42,0.95)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 12, color: "#FFF", fontSize: 12 }} formatter={(v: number) => formatNumber(v)} />
+              <Tooltip contentStyle={{ background: "var(--tooltip-bg)", border: "1px solid var(--hairline)", borderRadius: 12, color: "var(--text-primary)", fontSize: 12 }} formatter={(v: number) => formatNumber(v)} />
               <Legend wrapperStyle={{ fontSize: 11, color: "#94A3B8" }} />
               <Area type="monotone" dataKey="actual" name="Actual" stroke="#3B82F6" fill="url(#actGrad)" strokeWidth={2} />
               <Line type="monotone" dataKey="plan" name="Plan" stroke="#94A3B8" strokeWidth={1.5} dot={false} />
