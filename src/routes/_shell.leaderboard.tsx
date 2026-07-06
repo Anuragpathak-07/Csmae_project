@@ -1,34 +1,44 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PageHeader } from "@/components/ui/page-header";
-import { REGIONS, currentMonthRecords, computeKpis, formatNumber, formatPct } from "@/lib/mockData";
+import { currentMonthRecords, computeKpis, formatNumber, formatPct } from "@/lib/mockData";
 import { StatusChip } from "@/components/ui/status-chip";
 import { useMemo } from "react";
 import { ArrowDown, ArrowUp, Minus } from "lucide-react";
-import type { Status } from "@/lib/mockData";
+import { useScorecard } from "@/hooks/useApi";
+import { scorecardToRegionSummaries } from "@/lib/liveData";
 
 export const Route = createFileRoute("/_shell/leaderboard")({
   head: () => ({ meta: [{ title: "Regional Leaderboard — OCC" }, { name: "description", content: "Ranked regional performance across plan, actual, gap, and attainment." }] }),
   component: Leaderboard,
 });
 
-function statusOf(att: number): Status {
-  if (att >= 1) return "Above Plan";
-  if (att >= 0.95) return "On Plan";
-  if (att >= 0.8) return "Watchlist";
-  return "Behind Plan";
-}
-
 function Leaderboard() {
-  const records = currentMonthRecords();
+  const { data: scorecard } = useScorecard();
+
   const rows = useMemo(() => {
-    return REGIONS.map((r, i) => {
-      const k = computeKpis(records.filter((x) => x.region === r.name));
-      const prevRank = (i + 2) % REGIONS.length;
-      return { name: r.name, ...k, prevRank };
-    })
+    // Live data path
+    if (scorecard?.data?.length) {
+      return scorecardToRegionSummaries(scorecard.data).map((r, i, arr) => ({
+        name:        r.region,
+        totalPlan:   r.plan,
+        totalActual: r.actual,
+        totalGap:    r.gap,
+        attainment:  r.attainment,
+        rank:        i + 1,
+        delta:       0, // no historical rank in live data
+        status:      r.status,
+      }));
+    }
+    // Mock fallback
+    const records = currentMonthRecords();
+    const mockRegions = Array.from(new Set(records.map((r) => r.region)));
+    return mockRegions.map((name, i) => {
+        const k = computeKpis(records.filter((x) => x.region === name));
+        return { name, ...k, prevRank: (i + 2) % mockRegions.length };
+      })
       .sort((a, b) => b.attainment - a.attainment)
       .map((r, i) => ({ ...r, rank: i + 1, delta: r.prevRank - (i + 1) }));
-  }, [records]);
+  }, [scorecard]);
 
   return (
     <div>
@@ -56,7 +66,7 @@ function Leaderboard() {
                   <span className="kpi-number text-xl">{r.rank}</span>
                 </td>
                 <td className="px-4 py-4 font-medium text-text-primary">{r.name}</td>
-                <td className="px-4 py-4"><StatusChip status={statusOf(r.attainment)} /></td>
+                <td className="px-4 py-4"><StatusChip status={r.status ?? (r.attainment >= 1 ? "Above Plan" : r.attainment >= 0.95 ? "On Plan" : r.attainment >= 0.8 ? "Watchlist" : "Behind Plan")} /></td>
                 <td className="px-4 py-4 text-right text-text-secondary">{formatNumber(r.totalPlan)}</td>
                 <td className="px-4 py-4 text-right text-text-primary">{formatNumber(r.totalActual)}</td>
                 <td className="px-4 py-4 text-right" style={{ color: r.totalGap < 0 ? "var(--status-behind)" : "var(--status-onplan)" }}>

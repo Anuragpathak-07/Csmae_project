@@ -15,12 +15,12 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ShellTrendsRouteImport } from './routes/_shell.trends'
 import { Route as ShellTraceabilityRouteImport } from './routes/_shell.traceability'
 import { Route as ShellSettingsRouteImport } from './routes/_shell.settings'
-import { Route as ShellPlantPerformanceRouteImport } from './routes/_shell.plant-performance'
 import { Route as ShellPlanVsActualRouteImport } from './routes/_shell.plan-vs-actual'
 import { Route as ShellOverviewRouteImport } from './routes/_shell.overview'
 import { Route as ShellMapRouteImport } from './routes/_shell.map'
 import { Route as ShellLeaderboardRouteImport } from './routes/_shell.leaderboard'
 import { Route as ShellGapRecoveryRouteImport } from './routes/_shell.gap-recovery'
+import { Route as ShellDebugRouteImport } from './routes/_shell.debug'
 import { Route as ShellAttainmentMatrixRouteImport } from './routes/_shell.attainment-matrix'
 import { Route as ShellAiInsightsRouteImport } from './routes/_shell.ai-insights'
 
@@ -53,11 +53,6 @@ const ShellSettingsRoute = ShellSettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => ShellRoute,
 } as any)
-const ShellPlantPerformanceRoute = ShellPlantPerformanceRouteImport.update({
-  id: '/plant-performance',
-  path: '/plant-performance',
-  getParentRoute: () => ShellRoute,
-} as any)
 const ShellPlanVsActualRoute = ShellPlanVsActualRouteImport.update({
   id: '/plan-vs-actual',
   path: '/plan-vs-actual',
@@ -83,6 +78,11 @@ const ShellGapRecoveryRoute = ShellGapRecoveryRouteImport.update({
   path: '/gap-recovery',
   getParentRoute: () => ShellRoute,
 } as any)
+const ShellDebugRoute = ShellDebugRouteImport.update({
+  id: '/debug',
+  path: '/debug',
+  getParentRoute: () => ShellRoute,
+} as any)
 const ShellAttainmentMatrixRoute = ShellAttainmentMatrixRouteImport.update({
   id: '/attainment-matrix',
   path: '/attainment-matrix',
@@ -99,12 +99,12 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/ai-insights': typeof ShellAiInsightsRoute
   '/attainment-matrix': typeof ShellAttainmentMatrixRoute
+  '/debug': typeof ShellDebugRoute
   '/gap-recovery': typeof ShellGapRecoveryRoute
   '/leaderboard': typeof ShellLeaderboardRoute
   '/map': typeof ShellMapRoute
   '/overview': typeof ShellOverviewRoute
   '/plan-vs-actual': typeof ShellPlanVsActualRoute
-  '/plant-performance': typeof ShellPlantPerformanceRoute
   '/settings': typeof ShellSettingsRoute
   '/traceability': typeof ShellTraceabilityRoute
   '/trends': typeof ShellTrendsRoute
@@ -114,12 +114,12 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/ai-insights': typeof ShellAiInsightsRoute
   '/attainment-matrix': typeof ShellAttainmentMatrixRoute
+  '/debug': typeof ShellDebugRoute
   '/gap-recovery': typeof ShellGapRecoveryRoute
   '/leaderboard': typeof ShellLeaderboardRoute
   '/map': typeof ShellMapRoute
   '/overview': typeof ShellOverviewRoute
   '/plan-vs-actual': typeof ShellPlanVsActualRoute
-  '/plant-performance': typeof ShellPlantPerformanceRoute
   '/settings': typeof ShellSettingsRoute
   '/traceability': typeof ShellTraceabilityRoute
   '/trends': typeof ShellTrendsRoute
@@ -131,12 +131,12 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/_shell/ai-insights': typeof ShellAiInsightsRoute
   '/_shell/attainment-matrix': typeof ShellAttainmentMatrixRoute
+  '/_shell/debug': typeof ShellDebugRoute
   '/_shell/gap-recovery': typeof ShellGapRecoveryRoute
   '/_shell/leaderboard': typeof ShellLeaderboardRoute
   '/_shell/map': typeof ShellMapRoute
   '/_shell/overview': typeof ShellOverviewRoute
   '/_shell/plan-vs-actual': typeof ShellPlanVsActualRoute
-  '/_shell/plant-performance': typeof ShellPlantPerformanceRoute
   '/_shell/settings': typeof ShellSettingsRoute
   '/_shell/traceability': typeof ShellTraceabilityRoute
   '/_shell/trends': typeof ShellTrendsRoute
@@ -148,12 +148,12 @@ export interface FileRouteTypes {
     | '/login'
     | '/ai-insights'
     | '/attainment-matrix'
+    | '/debug'
     | '/gap-recovery'
     | '/leaderboard'
     | '/map'
     | '/overview'
     | '/plan-vs-actual'
-    | '/plant-performance'
     | '/settings'
     | '/traceability'
     | '/trends'
@@ -163,12 +163,12 @@ export interface FileRouteTypes {
     | '/login'
     | '/ai-insights'
     | '/attainment-matrix'
+    | '/debug'
     | '/gap-recovery'
     | '/leaderboard'
     | '/map'
     | '/overview'
     | '/plan-vs-actual'
-    | '/plant-performance'
     | '/settings'
     | '/traceability'
     | '/trends'
@@ -179,12 +179,12 @@ export interface FileRouteTypes {
     | '/login'
     | '/_shell/ai-insights'
     | '/_shell/attainment-matrix'
+    | '/_shell/debug'
     | '/_shell/gap-recovery'
     | '/_shell/leaderboard'
     | '/_shell/map'
     | '/_shell/overview'
     | '/_shell/plan-vs-actual'
-    | '/_shell/plant-performance'
     | '/_shell/settings'
     | '/_shell/traceability'
     | '/_shell/trends'
@@ -240,13 +240,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ShellSettingsRouteImport
       parentRoute: typeof ShellRoute
     }
-    '/_shell/plant-performance': {
-      id: '/_shell/plant-performance'
-      path: '/plant-performance'
-      fullPath: '/plant-performance'
-      preLoaderRoute: typeof ShellPlantPerformanceRouteImport
-      parentRoute: typeof ShellRoute
-    }
     '/_shell/plan-vs-actual': {
       id: '/_shell/plan-vs-actual'
       path: '/plan-vs-actual'
@@ -282,6 +275,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ShellGapRecoveryRouteImport
       parentRoute: typeof ShellRoute
     }
+    '/_shell/debug': {
+      id: '/_shell/debug'
+      path: '/debug'
+      fullPath: '/debug'
+      preLoaderRoute: typeof ShellDebugRouteImport
+      parentRoute: typeof ShellRoute
+    }
     '/_shell/attainment-matrix': {
       id: '/_shell/attainment-matrix'
       path: '/attainment-matrix'
@@ -302,12 +302,12 @@ declare module '@tanstack/react-router' {
 interface ShellRouteChildren {
   ShellAiInsightsRoute: typeof ShellAiInsightsRoute
   ShellAttainmentMatrixRoute: typeof ShellAttainmentMatrixRoute
+  ShellDebugRoute: typeof ShellDebugRoute
   ShellGapRecoveryRoute: typeof ShellGapRecoveryRoute
   ShellLeaderboardRoute: typeof ShellLeaderboardRoute
   ShellMapRoute: typeof ShellMapRoute
   ShellOverviewRoute: typeof ShellOverviewRoute
   ShellPlanVsActualRoute: typeof ShellPlanVsActualRoute
-  ShellPlantPerformanceRoute: typeof ShellPlantPerformanceRoute
   ShellSettingsRoute: typeof ShellSettingsRoute
   ShellTraceabilityRoute: typeof ShellTraceabilityRoute
   ShellTrendsRoute: typeof ShellTrendsRoute
@@ -316,12 +316,12 @@ interface ShellRouteChildren {
 const ShellRouteChildren: ShellRouteChildren = {
   ShellAiInsightsRoute: ShellAiInsightsRoute,
   ShellAttainmentMatrixRoute: ShellAttainmentMatrixRoute,
+  ShellDebugRoute: ShellDebugRoute,
   ShellGapRecoveryRoute: ShellGapRecoveryRoute,
   ShellLeaderboardRoute: ShellLeaderboardRoute,
   ShellMapRoute: ShellMapRoute,
   ShellOverviewRoute: ShellOverviewRoute,
   ShellPlanVsActualRoute: ShellPlanVsActualRoute,
-  ShellPlantPerformanceRoute: ShellPlantPerformanceRoute,
   ShellSettingsRoute: ShellSettingsRoute,
   ShellTraceabilityRoute: ShellTraceabilityRoute,
   ShellTrendsRoute: ShellTrendsRoute,

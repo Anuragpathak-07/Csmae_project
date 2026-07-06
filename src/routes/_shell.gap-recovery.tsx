@@ -1,7 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { ALL_RECORDS, formatNumber, type Status } from "@/lib/mockData";
+import { ALL_RECORDS, formatNumber } from "@/lib/mockData";
 import { Sparkles, TrendingDown } from "lucide-react";
 import { useMemo, useState } from "react";
+import { useScorecard } from "@/hooks/useApi";
+import { scorecardToOpsRecords } from "@/lib/liveData";
 
 export const Route = createFileRoute("/_shell/gap-recovery")({
   head: () => ({
@@ -28,13 +30,6 @@ const RISK_STYLE = {
   Medium:   { color: "#3B82F6", bg: "rgba(59,130,246,0.10)", border: "rgba(59,130,246,0.25)" },
 };
 
-const STATUS_DOT: Record<Status, string> = {
-  "Behind Plan": "#EF4444",
-  Watchlist:     "#F59E0B",
-  "On Plan":     "#10B981",
-  "Above Plan":  "#10B981",
-  "No Plan":     "#475569",
-};
 
 const AI_LINES = [
   "Accelerate Q3 output via secondary supplier route — estimated +12% capacity.",
@@ -54,9 +49,15 @@ type RiskFilter = (typeof RISK_FILTERS)[number];
 
 function GapRecovery() {
   const [activeFilter, setActiveFilter] = useState<RiskFilter>("All");
+  const { data: scorecardData } = useScorecard();
+
+  const allRecords = useMemo(() => {
+    if (scorecardData?.data?.length) return scorecardToOpsRecords(scorecardData.data);
+    return ALL_RECORDS;
+  }, [scorecardData]);
 
   const items = useMemo(() => {
-    return ALL_RECORDS.filter((r) => r.gap < 0)
+    return allRecords.filter((r) => r.gap < 0)
       .map((r) => ({ r, risk: riskLevel(r.gap, r.plan) }))
       .filter((x) => activeFilter === "All" || x.risk === activeFilter)
       .sort((a, b) => a.r.gap - b.r.gap)
@@ -64,13 +65,12 @@ function GapRecovery() {
       .map((x, i) => ({
         ...x,
         rank: i + 1,
-        score: 98 - i * 9,
         ai: AI_LINES[i % AI_LINES.length],
       }));
-  }, [activeFilter]);
+  }, [activeFilter, allRecords]);
 
   /* summary stats */
-  const allGapItems = ALL_RECORDS.filter((r) => r.gap < 0).map((r) => ({
+  const allGapItems = allRecords.filter((r) => r.gap < 0).map((r) => ({
     r,
     risk: riskLevel(r.gap, r.plan),
   }));
@@ -132,90 +132,49 @@ function GapRecovery() {
         {items.map((item, idx) => {
           const rs = RISK_STYLE[item.risk];
           const isLast = idx === items.length - 1;
-          const scorePct = `${item.score}%`;
 
           return (
             <div
               key={item.r.id}
-              className={`flex flex-col gap-3 px-6 py-5 transition-colors hover:bg-film sm:flex-row sm:items-center sm:gap-5 ${
+              className={`flex items-center gap-5 px-6 py-4 transition-colors hover:bg-film ${
                 !isLast ? "border-b border-hairline" : ""
               }`}
             >
-              {/* Rank + dot */}
-              <div className="flex shrink-0 items-center gap-3 sm:w-10 sm:flex-col sm:items-center sm:gap-1">
-                <span className="text-[11px] font-bold text-text-muted">#{item.rank}</span>
-                <span
-                  className="h-2 w-2 rounded-full"
-                  style={{
-                    background: STATUS_DOT[item.r.status],
-                    boxShadow: `0 0 6px ${STATUS_DOT[item.r.status]}`,
-                  }}
-                />
-              </div>
+              {/* Rank */}
+              <span className="w-6 shrink-0 text-center text-[11px] font-bold text-text-muted">
+                {item.rank}
+              </span>
 
               {/* Main content */}
               <div className="min-w-0 flex-1">
-                {/* Title row */}
-                <div className="mb-1.5 flex flex-wrap items-center gap-2">
-                  <span className="text-sm font-semibold text-text-primary">
-                    {item.r.region}
-                  </span>
-                  <span className="text-text-muted">·</span>
-                  <span className="text-sm text-text-secondary">{item.r.plant}</span>
-                  <span className="text-text-muted">—</span>
-                  <span className="text-xs text-text-muted">{item.r.metric}</span>
-
-                  {/* Risk badge */}
+                <div className="mb-1 flex flex-wrap items-center gap-2">
+                  <span className="text-sm font-semibold text-text-primary">{item.r.region}</span>
+                  <span className="text-xs text-text-muted">{item.r.plant}</span>
+                  <span className="text-xs text-text-muted/60">{item.r.metric}</span>
                   <span
-                    className="ml-1 rounded-full border px-2 py-0.5 text-[10px] font-semibold"
+                    className="rounded-full border px-2 py-0.5 text-[10px] font-semibold"
                     style={{ color: rs.color, borderColor: rs.border, background: rs.bg }}
                   >
                     {item.risk}
                   </span>
                 </div>
-
-                {/* AI recommendation */}
-                <div className="flex items-start gap-1.5 text-[11px] text-text-muted">
-                  <Sparkles className="mt-px h-3 w-3 shrink-0 text-accent-secondary/60" />
+                <div className="flex items-center gap-1.5 text-[11px] text-text-muted">
+                  <Sparkles className="h-3 w-3 shrink-0 text-accent-secondary/60" />
                   <span className="italic leading-snug">{item.ai}</span>
                 </div>
               </div>
 
-              {/* Metrics cluster */}
-              <div className="flex shrink-0 items-center gap-6">
-                {/* Gap */}
+              {/* Metrics */}
+              <div className="flex shrink-0 items-center gap-8">
                 <div className="text-right">
                   <div className="text-[10px] uppercase tracking-wider text-text-muted">Gap</div>
-                  <div
-                    className="text-base font-semibold tabular-nums"
-                    style={{ color: "var(--status-behind)" }}
-                  >
+                  <div className="text-sm font-semibold tabular-nums" style={{ color: "var(--status-behind)" }}>
                     {formatNumber(item.r.gap, { sign: true })}
                   </div>
                 </div>
-
-                {/* Score */}
-                <div className="hidden sm:block">
-                  <div className="mb-1 flex items-center justify-between gap-4 text-[10px] text-text-muted">
-                    <span className="uppercase tracking-wider">Score</span>
-                    <span className="font-semibold text-text-secondary">{item.score}</span>
-                  </div>
-                  <div className="h-1 w-20 overflow-hidden rounded-full bg-film-strong">
-                    <div
-                      className="h-full rounded-full"
-                      style={{
-                        width: scorePct,
-                        background: rs.color,
-                        boxShadow: `0 0 6px ${rs.color}80`,
-                      }}
-                    />
-                  </div>
-                </div>
-
-                {/* Attainment */}
                 <div className="hidden text-right lg:block">
                   <div className="text-[10px] uppercase tracking-wider text-text-muted">Attainment</div>
-                  <div className="text-base font-semibold tabular-nums text-text-secondary">
+                  <div className="text-sm font-semibold tabular-nums text-text-secondary">
                     {Math.round(item.r.attainment * 100)}%
                   </div>
                 </div>

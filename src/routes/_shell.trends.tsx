@@ -5,6 +5,8 @@ import { useMemo, useState } from "react";
 import {
   CartesianGrid, Line, ResponsiveContainer, Tooltip, XAxis, YAxis, Legend, Area, ComposedChart,
 } from "recharts";
+import { useMetrics } from "@/hooks/useApi";
+import { metricsToTrendSeries } from "@/lib/liveData";
 
 export const Route = createFileRoute("/_shell/trends")({
   head: () => ({ meta: [{ title: "Trend & Forecast — OCC" }, { name: "description", content: "Execution trends with forecast overlay and month-end projections." }] }),
@@ -13,7 +15,13 @@ export const Route = createFileRoute("/_shell/trends")({
 
 function TrendPage() {
   const [range, setRange] = useState<"Q" | "H" | "Y">("Y");
-  const raw = useMemo(() => trendSeries(), []);
+  const { data: metricsData } = useMetrics({ limit: 5000 });
+
+  const raw = useMemo(() => {
+    if (metricsData?.data?.length) return metricsToTrendSeries(metricsData.data);
+    return trendSeries();
+  }, [metricsData]);
+
   const data = range === "Q" ? raw.slice(-3) : range === "H" ? raw.slice(-6) : raw;
 
   return (

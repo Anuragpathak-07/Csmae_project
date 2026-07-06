@@ -6,8 +6,11 @@ import {
   formatPct,
   REGION_HIGHLIGHTS,
   type Status,
+  type RegionSummary,
 } from "@/lib/mockData";
 import { RegionStatusRow } from "@/components/ui/region-status-row";
+import { useScorecard } from "@/hooks/useApi";
+import type { ScorecardRow } from "@/lib/api";
 
 export const Route = createFileRoute("/_shell/overview")({
   head: () => ({
@@ -67,16 +70,74 @@ function MetaBadge({
   );
 }
 
-function OverviewPage() {
-  const records = currentMonthRecords();
-  const k = computeKpis(records);
-  const summaries = buildRegionSummaries(records);
+function scorecardToSummaries(rows: ScorecardRow[]): RegionSummary[] {
+  const byRegion = new Map<string, ScorecardRow[]>();
+  for (const r of rows) {
+    const list = byRegion.get(r.region) ?? [];
+    list.push(r);
+    byRegion.set(r.region, list);
+  }
+  return Array.from(byRegion.entries()).map(([region, regionRows]) => {
+    const delivery   = regionRows.filter((r) => r.metric_category === "shipment");
+    const production = regionRows.filter((r) => r.metric_category === "production");
+    const attainment = (rows: ScorecardRow[]) => {
+      if (!rows.length) return 0;
+      const vals = rows.map((r) => r.attainment_pct ?? 0);
+      return vals.reduce((a, b) => a + b, 0) / vals.length / 100;
+    };
+    const statusFrom = (a: number): Status => {
+      if (a === 0) return "No Plan";
+      if (a >= 1.0) return "Above Plan";
+      if (a >= 0.95) return "On Plan";
+      if (a >= 0.8) return "Watchlist";
+      return "Behind Plan";
+    };
+    const da = attainment(delivery.length ? delivery : regionRows);
+    const pa = attainment(production.length ? production : regionRows);
+    const oa = (da + pa) / 2;
+    const plans  = regionRows.map((r) => r.plan   ?? 0);
+    const actuals = regionRows.map((r) => r.actual ?? 0);
+    const totalPlan   = plans.reduce((a, b) => a + b, 0);
+    const totalActual = actuals.reduce((a, b) => a + b, 0);
+    return {
+      region,
+      deliveryAttainment:   da,
+      deliveryStatus:       statusFrom(da),
+      productionAttainment: pa,
+      productionStatus:     statusFrom(pa),
+      overallAttainment:    oa,
+      overallStatus:        statusFrom(oa),
+      plan:   totalPlan,
+      actual: totalActual,
+      gap:    totalActual - totalPlan,
+    } satisfies RegionSummary;
+  });
+}
 
-  const behind = summaries.filter((s) => s.overallStatus === "Behind Plan").length;
-  const onPlan = summaries.filter(
-    (s) => s.overallStatus === "On Plan" || s.overallStatus === "Above Plan",
-  ).length;
+function OverviewPage() {
+  const { data: scorecardData, isSuccess: hasLiveData } = useScorecard();
+
+  // Use live API data if available, fall back to mock data
+  const mockRecords = currentMonthRecords();
+  const summaries: RegionSummary[] = hasLiveData && scorecardData!.data.length > 0
+    ? scorecardToSummaries(scorecardData!.data)
+    : buildRegionSummaries(mockRecords);
+
+  const k = hasLiveData && scorecardData!.data.length > 0
+    ? (() => {
+        const totalPlan   = scorecardData!.data.reduce((s, r) => s + (r.plan   ?? 0), 0);
+        const totalActual = scorecardData!.data.reduce((s, r) => s + (r.actual ?? 0), 0);
+        return { attainment: totalPlan ? totalActual / totalPlan : 0 };
+      })()
+    : computeKpis(mockRecords);
+
+  const behind   = summaries.filter((s) => s.overallStatus === "Behind Plan").length;
+  const onPlan   = summaries.filter((s) => s.overallStatus === "On Plan" || s.overallStatus === "Above Plan").length;
   const watchlist = summaries.filter((s) => s.overallStatus === "Watchlist").length;
+
+  const reportMonth = hasLiveData && scorecardData!.data[0]?.report_month
+    ? scorecardData!.data[0].report_month
+    : "May 2026";
 
   const overallColor =
     k.attainment >= 0.95
@@ -94,7 +155,7 @@ function OverviewPage() {
             Global Operations · Executive Summary
           </div>
           <h1 className="text-display text-xl font-semibold text-text-primary">
-            CSAME Delivery & Production · May 2026
+            CSAME Delivery & Production · {reportMonth}
           </h1>
         </div>
 
@@ -242,7 +303,11 @@ function OverviewPage() {
       <div className="glass-panel flex flex-wrap items-center justify-between gap-4 px-6 py-3">
         <span className="text-xs text-text-muted">
           Reporting period:{" "}
-          <span className="font-medium text-text-secondary">May 2026</span> · 6 Regions · 14 Plants · 152 KPIs
+          <span className="font-medium text-text-secondary">{reportMonth}</span>{" "}
+          · {summaries.length} Regions
+          {hasLiveData && scorecardData!.data.length > 0
+            ? ` · ${scorecardData!.total_rows} KPIs · Live data`
+            : " · Mock data"}
         </span>
         <div className="flex gap-6">
           {summaries.map((s) => (
